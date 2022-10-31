@@ -1,7 +1,7 @@
 fileFormatVersion: 2
 guid: 36078ab0369161e49a29d349ae3e0739
 ModelImporter:
-  serializedVersion: 22103
+  serializedVersion: 21300
   internalIDToNameTable:
   - first:
       74: 1827226128182048838
@@ -34,6 +34,7 @@ ModelImporter:
     animationWrapMode: 0
     extraExposedTransformPaths:
     - Skeleton/Hips/Spine/Chest/UpperChest/Right_Shoulder/Right_UpperArm/Right_LowerArm/Right_Hand
+    - Skeleton/Hips/Spine/Chest/UpperChest/Left_Shoulder/Left_UpperArm/Left_LowerArm/Left_Hand
     extraUserProperties: []
     clipAnimations: []
     isReadable: 0
@@ -71,7 +72,6 @@ ModelImporter:
     secondaryUVMinObjectScale: 1
     secondaryUVPackMargin: 4
     useFileScale: 1
-    strictVertexDataChecks: 0
   tangentSpace:
     normalSmoothAngle: 60
     normalImportMode: 0
@@ -888,7 +888,6 @@ ModelImporter:
   humanoidOversampling: 1
   avatarSetup: 1
   addHumanoidExtraRootOnlyWhenUsingAvatar: 0
-  importBlendShapeDeformPercent: 0
   remapMaterialsIfMaterialImportModeIsNone: 1
   additionalBone: 0
   userData: 
