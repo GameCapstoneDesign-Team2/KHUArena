@@ -10,6 +10,9 @@ public class PlayerController : MonoBehaviour
     private Transform cameraTransform;
     private Movement3D movement3D;
     private PlayerAnimator playerAnimator;
+    [SerializeField]
+    private float currentTime;
+    public float coolTime = 0.5f;
 
     private void Awake()
     {
@@ -35,26 +38,35 @@ public class PlayerController : MonoBehaviour
         // 이동 함수 호출 (카메라가 보고 있는 방향을 기준으로 방향키에 따라 이동)
         movement3D.Moveto(cameraTransform.rotation * new Vector3(x, 0, z));
 
-
         // 회전 설정 (항상 앞만 보도록 캐릭터의 회전은 카메라와 같은 회전 값으로 설정)
         transform.rotation = Quaternion.Euler(0, cameraTransform.eulerAngles.y, 0);
 
-
         // space 누르면 점프 
-        if(Input.GetKeyDown(jumpKeyCode))
+        if (Input.GetKeyDown(jumpKeyCode))
         {
             playerAnimator.OnJump(); // 애니메이션 파라미터 설정 (onJump)
             movement3D.JumpTo(); // 점프 함수 호출
         }
 
-        if(Input.GetMouseButtonDown(0))
+        if (currentTime <= 0)
         {
-            playerAnimator.OnWeaponAttack();
-        }
+            // Sword 공격
+            if (Input.GetMouseButtonDown(0))
+            {
+                playerAnimator.OnWeaponAttack();
+                currentTime = coolTime;
+            }
 
-        if(Input.GetKeyDown(KeyCode.LeftShift))
+            // Shield 공격
+            if (Input.GetMouseButton(1))
+            {
+                playerAnimator.OnShield();
+                currentTime = coolTime;
+            }
+        }
+        else
         {
-            playerAnimator.OnShield();
+            currentTime -= Time.deltaTime;
         }
     }
 }

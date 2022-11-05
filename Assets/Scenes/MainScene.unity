@@ -306,9 +306,13 @@ PrefabInstance:
       value: Player_Model
       objectReference: {fileID: 0}
     - target: {fileID: 5866666021909216657, guid: 36078ab0369161e49a29d349ae3e0739, type: 3}
+      propertyPath: m_Enabled
+      value: 1
+      objectReference: {fileID: 0}
+    - target: {fileID: 5866666021909216657, guid: 36078ab0369161e49a29d349ae3e0739, type: 3}
       propertyPath: m_Controller
       value: 
-      objectReference: {fileID: 9100000, guid: 64c355702f7f92e4c9c7959fb5dad89a, type: 2}
+      objectReference: {fileID: 9100000, guid: 2006e6a4f15d09040a48312f2e0f1bc3, type: 2}
     - target: {fileID: 5866666021909216657, guid: 36078ab0369161e49a29d349ae3e0739, type: 3}
       propertyPath: m_ApplyRootMotion
       value: 0
@@ -637,7 +641,7 @@ Transform:
   m_PrefabAsset: {fileID: 0}
   m_GameObject: {fileID: 963194225}
   m_LocalRotation: {x: 0, y: 0, z: 0, w: 1}
-  m_LocalPosition: {x: 0, y: 1.5, z: -1}
+  m_LocalPosition: {x: 0, y: 1.5, z: -2.251}
   m_LocalScale: {x: 1, y: 1, z: 1}
   m_ConstrainProportionsScale: 0
   m_Children: []
@@ -756,6 +760,7 @@ GameObject:
   - component: {fileID: 1241180541}
   - component: {fileID: 1241180540}
   - component: {fileID: 1241180539}
+  - component: {fileID: 1241180542}
   m_Layer: 0
   m_Name: Player
   m_TagString: Untagged
@@ -828,6 +833,22 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   jumpKeyCode: 32
   cameraTransform: {fileID: 963194228}
+  currentTime: 0
+  coolTime: 0.5
+--- !u!136 &1241180542
+CapsuleCollider:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 1241180537}
+  m_Material: {fileID: 0}
+  m_IsTrigger: 0
+  m_Enabled: 1
+  m_Radius: 0.5
+  m_Height: 2
+  m_Direction: 1
+  m_Center: {x: 0, y: 1, z: 0}
 --- !u!1 &1548903460
 GameObject:
   m_ObjectHideFlags: 0
@@ -842,7 +863,7 @@ GameObject:
   - component: {fileID: 1548903461}
   m_Layer: 0
   m_Name: Environment
-  m_TagString: Untagged
+  m_TagString: Ground
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
   m_StaticEditorFlags: 0
@@ -943,6 +964,12 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   attackCollision: {fileID: 105860284}
+  animator: {fileID: 1755344983}
+--- !u!95 &1755344983 stripped
+Animator:
+  m_CorrespondingSourceObject: {fileID: 5866666021909216657, guid: 36078ab0369161e49a29d349ae3e0739, type: 3}
+  m_PrefabInstance: {fileID: 340691343}
+  m_PrefabAsset: {fileID: 0}
 --- !u!4 &1871145562 stripped
 Transform:
   m_CorrespondingSourceObject: {fileID: -8740843822228895071, guid: 36078ab0369161e49a29d349ae3e0739, type: 3}

@@ -6,7 +6,7 @@ public class PlayerAnimator : MonoBehaviour
 {
     [SerializeField]
     private GameObject attackCollision;
-    private Animator animator;
+    public Animator animator;
 
     private void Awake()
     {
@@ -15,7 +15,7 @@ public class PlayerAnimator : MonoBehaviour
 
     public void OnMovement (float horizontal, float vertical)
     {
-        animator.SetFloat("horizontal", horizontal);
+        animator.SetFloat("horizontal", -horizontal);
         animator.SetFloat("vertical", vertical);
     }
 
@@ -26,12 +26,20 @@ public class PlayerAnimator : MonoBehaviour
 
     public void OnWeaponAttack()
     {
-        animator.SetTrigger("onWeaponAttack");
+        if (animator.GetCurrentAnimatorStateInfo(1).normalizedTime > 0.5f)
+        {
+            animator.SetLayerWeight(1, 1);
+            animator.SetTrigger("onWeaponAttack");
+        }
     }
 
     public void OnShield()
     {
-        animator.SetTrigger("onShield");
+        if (animator.GetCurrentAnimatorStateInfo(1).normalizedTime > 0.5f)
+        {
+            animator.SetLayerWeight(1, 1);
+            animator.SetTrigger("onShield");
+        }
     }
 
     public void OnAttackCollision()
