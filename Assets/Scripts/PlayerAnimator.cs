@@ -38,8 +38,22 @@ public class PlayerAnimator : MonoBehaviour
         if (animator.GetCurrentAnimatorStateInfo(1).normalizedTime > 0.5f)
         {
             animator.SetLayerWeight(1, 1);
-            animator.SetTrigger("onShield");
+            animator.SetBool("onShield", true);
         }
+    }
+
+    public void OffShield()
+    {
+        if (animator.GetCurrentAnimatorStateInfo(1).normalizedTime > 0.5f)
+        {
+            animator.SetLayerWeight(1, 1);
+            animator.SetBool("onShield", false);
+        }
+    }
+
+    public void OnDodge()
+    {
+        animator.SetTrigger("onDodge");
     }
 
     public void OnAttackCollision()
