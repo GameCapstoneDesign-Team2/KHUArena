@@ -49,9 +49,12 @@ public class PlayerController : MonoBehaviour
 
         if(Input.GetMouseButtonDown(0))
         {
+            //속도 0으로 만들었다가
             playerAnimator.OnWeaponAttack();
+            //GetMouseButtonUp
+            //속도 복구 
         }
-
+        
         if(Input.GetKeyDown(KeyCode.LeftShift))
         {
             playerAnimator.OnShield();
