@@ -4,7 +4,9 @@ using UnityEngine;
 
 public class PlayerAnimator : MonoBehaviour
 {
-    private Animator animator;
+    [SerializeField]
+    private GameObject attackCollision;
+    public Animator animator;
 
     private void Awake()
     {
@@ -13,7 +15,7 @@ public class PlayerAnimator : MonoBehaviour
 
     public void OnMovement (float horizontal, float vertical)
     {
-        animator.SetFloat("horizontal", horizontal);
+        animator.SetFloat("horizontal", -horizontal);
         animator.SetFloat("vertical", vertical);
     }
 
@@ -24,6 +26,38 @@ public class PlayerAnimator : MonoBehaviour
 
     public void OnWeaponAttack()
     {
-        animator.SetTrigger("onWeaponAttack");
+        if (animator.GetCurrentAnimatorStateInfo(1).normalizedTime > 0.5f)
+        {
+            animator.SetLayerWeight(1, 1);
+            animator.SetTrigger("onWeaponAttack");
+        }
+    }
+
+    public void OnShield()
+    {
+        if (animator.GetCurrentAnimatorStateInfo(1).normalizedTime > 0.5f)
+        {
+            animator.SetLayerWeight(1, 1);
+            animator.SetBool("onShield", true);
+        }
+    }
+
+    public void OffShield()
+    {
+        if (animator.GetCurrentAnimatorStateInfo(1).normalizedTime > 0.5f)
+        {
+            animator.SetLayerWeight(1, 1);
+            animator.SetBool("onShield", false);
+        }
+    }
+
+    public void OnDodge()
+    {
+        animator.SetTrigger("onDodge");
+    }
+
+    public void OnAttackCollision()
+    {
+        attackCollision.SetActive(true);
     }
 }

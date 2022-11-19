@@ -8,9 +8,9 @@ public class CameraController : MonoBehaviour
 
     private Transform target; //카메라가 추적하는 대상
     [SerializeField]
-    private float minDistance = 3; //카메라와 target의 최소 거리
+    private float minDistance = 1; //카메라와 target의 최소 거리
     [SerializeField]
-    private float maxDistance = 10; //카메라와 target의 최대 거리
+    private float maxDistance = 5; //카메라와 target의 최대 거리
     [SerializeField]
     private float wheelSpeed = 500; //마우스 휠 스크롤 속도
     [SerializeField]
@@ -19,7 +19,7 @@ public class CameraController : MonoBehaviour
     private float yMoveSpeed = 250; //카메라의 x축 회전 속도
 
     private float yMinLimit = 5; //카메라 x축 회전 제한 최소 값
-    private float yMaxLimit = 80; //카메라 x축 회전 제한 최대 값
+    private float yMaxLimit = 50; //카메라 x축 회전 제한 최대 값
 
     private float x, y; //마우스 이동 방향 값
     private float distance; //카메라와 target의 거리

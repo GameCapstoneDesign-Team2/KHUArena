@@ -5,7 +5,7 @@ using UnityEngine;
 public class Movement3D : MonoBehaviour
 {
     [SerializeField]
-    private float moveSpeed = 5;
+    private float moveSpeed;
     [SerializeField]
     private float gravity = -9.81f;
     [SerializeField]
@@ -14,10 +14,12 @@ public class Movement3D : MonoBehaviour
     private Vector3 moveDirection;
 
     private CharacterController characterController;
+
     public float MoveSpeed
     {
         //이동 속도는 2~5 사이의 값만 설정 가능
-        set => moveSpeed = Mathf.Clamp(value, 2.0f, 5.0f);
+        set => moveSpeed = Mathf.Clamp(value, 4.0f, 8.0f);
+        get => moveSpeed;
     }
 
     private void Awake()
@@ -27,7 +29,6 @@ public class Movement3D : MonoBehaviour
 
     private void Update()
     {
-        
         if(characterController.isGrounded == false)
         {
             moveDirection.y += gravity * Time.deltaTime;
