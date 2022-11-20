@@ -18,7 +18,7 @@ public class Movement3D : MonoBehaviour
     public float MoveSpeed
     {
         //이동 속도는 2~5 사이의 값만 설정 가능
-        set => moveSpeed = Mathf.Clamp(value, 4.0f, 8.0f);
+        set => moveSpeed = Mathf.Clamp(value, 10.0f, 20.0f);
         get => moveSpeed;
     }
 
