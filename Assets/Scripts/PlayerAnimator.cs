@@ -17,6 +17,7 @@ public class PlayerAnimator : MonoBehaviour
     {
         animator.SetFloat("horizontal", -horizontal);
         animator.SetFloat("vertical", vertical);
+        animator.SetBool("isMove", (horizontal != 0.0f || vertical != 0.0f));
     }
 
     public void OnJump()

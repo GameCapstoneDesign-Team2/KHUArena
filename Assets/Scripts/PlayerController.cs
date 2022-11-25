@@ -26,6 +26,7 @@ public class PlayerController : MonoBehaviour
 
     private bool isAttackReady = true;
     private bool isDodgeReady = true;
+    private bool isShield = true;
     private bool isJump;
     private bool isDodge;
 
@@ -47,6 +48,7 @@ public class PlayerController : MonoBehaviour
         Move();
         Jump();
         Attack();
+        Shield();
         Dodge();
     }
 
@@ -64,10 +66,14 @@ public class PlayerController : MonoBehaviour
                 currentAttackTime = 0;
             }
         }
+    }
 
-        // Shield АјАн
+    void Shield()
+    {
         if (Input.GetMouseButton(1) && !isJump && !isDodge)
         {
+            isShield = false;
+
             playerAnimator.OnShield();
 
             if (Input.GetKeyDown(KeyCode.R))
@@ -78,6 +84,7 @@ public class PlayerController : MonoBehaviour
 
         if (Input.GetMouseButtonUp(1))
         {
+            isShield = true;
             playerAnimator.OffShield();
         }
     }
@@ -91,7 +98,7 @@ public class PlayerController : MonoBehaviour
             moveVector = dodgeVector;
         }
 
-        if (!isAttackReady)
+        if (!isAttackReady || !isShield)
         {
             moveVector *= 0.5f;
         }
