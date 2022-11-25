@@ -3,37 +3,41 @@ using System.Collections.Generic;
 using UnityEngine;
 using UnityEngine.AI;
 
-public class EnemyController : MonoBehaviour
+public class EnemyController : LivingEntity
 {
     private Animator animator;
     private SkinnedMeshRenderer meshRenderer;
+    private LayerMask whatIsTarget;
     private Color originColor;
-    public Transform target;
+    public LivingEntity target;
+    public Transform transform;
 
-    public int maxHP;
-    public int curHP;
     private float distance;
-    public bool dead { get; protected set; }
 
-    NavMeshAgent nav;
+    public float damage = 20f;
+    public float attackDelay = 1f;
+    private float lastAttackTime;
+    private float attackRange = 2.3f;
+
+    private NavMeshAgent nav;
     Rigidbody rigid;
     CapsuleCollider capsuleCollider;
 
-    //타깃이 존재하는지 알려주는 함수
+    private bool isWalk;
+    private bool isAttack;
+
     private bool hasTarget
     {
         get
         {
-            if (target != null)
+            if (target != null && !target.dead)
             {
                 return true;
             }
+
             return false;
         }
     }
-
-    private bool isWalk;
-    private bool isAttack;
 
     private void Awake()
     {
@@ -43,11 +47,19 @@ public class EnemyController : MonoBehaviour
         meshRenderer = GetComponentInChildren<SkinnedMeshRenderer>();
         originColor = meshRenderer.material.color;
         nav = GetComponent<NavMeshAgent>();
-        
+    }
 
-        //타깃 : 플레이어 
-        target = GameObject.FindGameObjectWithTag("Player").transform;
+    public void Setup(float newHealth, float newDamage, float newSpeed)
+    {
+        startingHealth = newHealth;
+        health = newHealth;
+        damage = newDamage;
+        nav.speed = newSpeed;
+    }
 
+    private void Start()
+    {
+        transform = GetComponent<Transform>();
     }
 
     private void Update()
@@ -57,28 +69,75 @@ public class EnemyController : MonoBehaviour
 
         if (hasTarget)
         {
-            distance = Vector3.Distance(target.position, target.transform.position);
+            distance = Vector3.Distance(transform.position, target.transform.position);
         }
+    }
 
-        
+    private IEnumerator UpdatePath()
+    {
+        while(!dead)
+        {
+            if (hasTarget) //추척 대상이 있으면 공격
+            {
+                Attack();
+            }
 
+            else
+            {
+                //추적 대상이 없으면 이동 정지
+                nav.isStopped = true;
+                isAttack = false;
+                isWalk = false;
+            }
+
+            //0.25주기로 반복
+            yield return new WaitForSeconds(0.25f);
+        }
     }
 
     public void Attack()
     {
-        this.transform.LookAt(target.transform);
+        if (!dead && distance < attackRange)
+        {
+            isWalk = false;
 
-        isAttack = true;
+            this.transform.LookAt(target.transform); //타깃 바라보기
+
+            if (lastAttackTime + attackDelay <= Time.time)
+            {
+                isAttack = true;
+            }
+
+            else
+            {
+                isAttack = false;
+            }
+        }
+
+        else
+        {
+            isWalk = true;
+            isAttack = false;
+            //계속 추적
+            nav.isStopped = false; //계속 이동
+            nav.SetDestination(target.transform.position);
+        }
     }
-    
 
-    public void TakeDamage(int damage)
+    public override void OnDamage(float damage)
     {
-        Debug.Log(damage + "의 체력이 감소합니다.");
+        animator.SetTrigger("OnHit");
+        base.OnDamage(damage);
+    }
 
-        animator.SetTrigger("onHit");
+    //데미지 적용시키기 
+    public void OnDamageEvent()
+    {
+        LivingEntity attackTarget = target.GetComponent<LivingEntity>();
 
-        StartCoroutine("OnHitColor");
+        attackTarget.OnDamage(damage);
+
+        lastAttackTime = Time.time;
     }
 
     private IEnumerator OnHitColor()
@@ -91,6 +150,21 @@ public class EnemyController : MonoBehaviour
 
     }
 
-    
-    
+    public override void Die()
+    {
+        base.Die();
+
+        //다른 AI를 방해하지 않도록 자신의 모든 콜라이더를 비활성화
+        Collider[] enemyColliders = GetComponents<Collider>();
+        for (int i = 0; i < enemyColliders.Length; i++)
+        {
+            enemyColliders[i].enabled = false;
+        }
+
+        nav.isStopped = true;
+        nav.enabled = false;
+
+        animator.SetTrigger("Die");
+    }
+
 }
