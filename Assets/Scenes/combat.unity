@@ -181,7 +181,7 @@ PrefabInstance:
     - target: {fileID: 5866666021909216657, guid: 36078ab0369161e49a29d349ae3e0739, type: 3}
       propertyPath: m_Controller
       value: 
-      objectReference: {fileID: 9100000, guid: 2006e6a4f15d09040a48312f2e0f1bc3, type: 2}
+      objectReference: {fileID: 9100000, guid: 64c355702f7f92e4c9c7959fb5dad89a, type: 2}
     - target: {fileID: 5866666021909216657, guid: 36078ab0369161e49a29d349ae3e0739, type: 3}
       propertyPath: m_ApplyRootMotion
       value: 0
@@ -628,7 +628,8 @@ GameObject:
   m_Component:
   - component: {fileID: 1241180538}
   - component: {fileID: 1241180541}
-  - component: {fileID: 1241180543}
+  - component: {fileID: 1241180540}
+  - component: {fileID: 1241180539}
   - component: {fileID: 1241180542}
   m_Layer: 0
   m_Name: Player
@@ -654,6 +655,39 @@ Transform:
   m_Father: {fileID: 0}
   m_RootOrder: 2
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
+--- !u!143 &1241180539
+CharacterController:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 1241180537}
+  m_Material: {fileID: 0}
+  m_IsTrigger: 0
+  m_Enabled: 1
+  serializedVersion: 2
+  m_Height: 2
+  m_Radius: 0.5
+  m_SlopeLimit: 45
+  m_StepOffset: 0.4
+  m_SkinWidth: 0.08
+  m_MinMoveDistance: 0.001
+  m_Center: {x: 0, y: 1, z: 0}
+--- !u!114 &1241180540
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 1241180537}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 42b0480b159c0ac4a85215dc183be48e, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  moveSpeed: 5
+  gravity: -9.81
+  jumpForce: 3
 --- !u!114 &1241180541
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -668,10 +702,8 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   startingHealth: 100
   startingMana: 0
+  jumpKeyCode: 32
   cameraTransform: {fileID: 963194228}
-  playerAnimator: {fileID: 1755344983}
-  moveSpeed: 10
-  currentAttackTime: 0.5
 --- !u!54 &1241180542
 Rigidbody:
   m_ObjectHideFlags: 0
@@ -686,22 +718,8 @@ Rigidbody:
   m_UseGravity: 1
   m_IsKinematic: 0
   m_Interpolate: 0
-  m_Constraints: 80
+  m_Constraints: 0
   m_CollisionDetection: 0
---- !u!136 &1241180543
-CapsuleCollider:
-  m_ObjectHideFlags: 0
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInstance: {fileID: 0}
-  m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 1241180537}
-  m_Material: {fileID: 0}
-  m_IsTrigger: 0
-  m_Enabled: 1
-  m_Radius: 0.34
-  m_Height: 1.9
-  m_Direction: 1
-  m_Center: {x: 0, y: 0.93, z: 0}
 --- !u!1001 &1478844355
 PrefabInstance:
   m_ObjectHideFlags: 0
@@ -773,7 +791,7 @@ GameObject:
   - component: {fileID: 1548903461}
   m_Layer: 0
   m_Name: Environment
-  m_TagString: Ground
+  m_TagString: Untagged
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
   m_StaticEditorFlags: 2147483647
@@ -856,11 +874,24 @@ Transform:
   m_Father: {fileID: 0}
   m_RootOrder: 3
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
---- !u!95 &1755344983 stripped
-Animator:
-  m_CorrespondingSourceObject: {fileID: 5866666021909216657, guid: 36078ab0369161e49a29d349ae3e0739, type: 3}
+--- !u!1 &1755344980 stripped
+GameObject:
+  m_CorrespondingSourceObject: {fileID: 919132149155446097, guid: 36078ab0369161e49a29d349ae3e0739, type: 3}
   m_PrefabInstance: {fileID: 340691343}
   m_PrefabAsset: {fileID: 0}
+--- !u!114 &1755344982
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 1755344980}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: bbdd8be8e9b6f4d498ba6b0988dae786, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  attackCollision: {fileID: 0}
 --- !u!1 &1802847649
 GameObject:
   m_ObjectHideFlags: 0
@@ -1020,7 +1051,7 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   startingHealth: 100
   startingMana: 0
-  target: {fileID: 1241180541}
+  target: {fileID: 1241180538}
   attackRange: {fileID: 1802847651}
 --- !u!95 &1883644723
 Animator:
@@ -1158,7 +1189,7 @@ NavMeshAgent:
   m_Enabled: 1
   m_AgentTypeID: 0
   m_Radius: 0.5
-  m_Speed: 2
+  m_Speed: 1
   m_Acceleration: 8
   avoidancePriority: 50
   m_AngularSpeed: 120
