@@ -1,27 +1,89 @@
 using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
+using UnityEngine.AI;
 
-public class EnemyController : MonoBehaviour
+public class EnemyController : LivingEntity
 {
     private Animator animator;
     private SkinnedMeshRenderer meshRenderer;
+    private LayerMask whatIsTarget;
     private Color originColor;
+
+    public LivingEntity target; 
+
+    private float distance;
+
+    //component
+    NavMeshAgent nav;
+    Rigidbody rigid;
+    CapsuleCollider capsuleCollider;
+    public BoxCollider attackRange;
+
+    private bool isChase;
+    private bool isWalk;
+    private bool isAttack;
 
     private void Awake()
     {
-        animator = GetComponent<Animator>();
+        rigid = GetComponent<Rigidbody>();
+        capsuleCollider = GetComponent<CapsuleCollider>();
+        animator = GetComponentInChildren<Animator>();
         meshRenderer = GetComponentInChildren<SkinnedMeshRenderer>();
         originColor = meshRenderer.material.color;
+        nav = GetComponent<NavMeshAgent>();
+
+        //2초 후 추적 시작
+        Invoke("ChaseStart", 2);
     }
 
-    public void TakeDamage(int damage)
+    public void Setup(float newHealth)
     {
-        Debug.Log(damage + "의 체력이 감소합니다.");
+        startingHealth = newHealth;
+        health = newHealth;
+    }
 
-        animator.SetTrigger("onHit");
+    void ChaseStart()
+    {
+        isChase = true;
+        animator.SetBool("IsWalk", true);
+    }
 
-        StartCoroutine("OnHitColor");
+    void Update()
+    {
+        if(nav.enabled)
+        {
+            nav.SetDestination(target.transform.position);
+            nav.isStopped = !isChase;
+        }
+    }
+
+    void FreezeVelocity()
+    {
+        if (isChase)
+        {
+            rigid.velocity = Vector3.zero;
+            rigid.angularVelocity = Vector3.zero;
+        }
+    }
+
+    void FixedUpdate()
+    {
+        FreezeVelocity();
+    }
+
+    void Attack()
+    {
+        isChase = false;
+        isAttack = true;
+        animator.SetBool("isAttack", true);
+    }
+
+    public void OnDamage()
+    {   
+        //맞으면 반격
+        animator.SetTrigger("OnHit");
+        Attack();
     }
 
     private IEnumerator OnHitColor()
@@ -31,7 +93,24 @@ public class EnemyController : MonoBehaviour
         yield return new WaitForSeconds(0.1f);
 
         meshRenderer.material.color = originColor;
+
     }
 
-    
+    public override void Die()
+    {
+        base.Die();
+
+        //다른 AI를 방해하지 않도록 자신의 모든 콜라이더를 비활성화
+        Collider[] enemyColliders = GetComponents<Collider>();
+        for (int i = 0; i < enemyColliders.Length; i++)
+        {
+            enemyColliders[i].enabled = false;
+        }
+
+        nav.isStopped = true;
+        nav.enabled = false;
+
+        animator.SetTrigger("Die");
+    }
+
 }
