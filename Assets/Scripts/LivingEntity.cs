@@ -5,6 +5,7 @@ using UnityEngine;
 
 public class LivingEntity : MonoBehaviour
 {
+    //Ω∫≈»
     public float startingHealth = 100f;
     public float startingMana = 0f;
     public float health { get; protected set; }

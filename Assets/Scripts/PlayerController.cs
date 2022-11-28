@@ -2,7 +2,7 @@ using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
 
-public class PlayerController : MonoBehaviour
+public class PlayerController : LivingEntity
 {
     [SerializeField]
     private KeyCode jumpKeyCode = KeyCode.Space;
@@ -19,7 +19,7 @@ public class PlayerController : MonoBehaviour
         movement3D = GetComponent<Movement3D>();
         playerAnimator = GetComponentInChildren<PlayerAnimator>();
     }
-
+    
     private void Update()
     {
         // 방향키를 눌러 이동

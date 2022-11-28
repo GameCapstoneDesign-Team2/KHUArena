@@ -9,135 +9,81 @@ public class EnemyController : LivingEntity
     private SkinnedMeshRenderer meshRenderer;
     private LayerMask whatIsTarget;
     private Color originColor;
-    public LivingEntity target;
-    public Transform transform;
+
+    public LivingEntity target; 
 
     private float distance;
 
-    public float damage = 20f;
-    public float attackDelay = 1f;
-    private float lastAttackTime;
-    private float attackRange = 2.3f;
-
-    private NavMeshAgent nav;
+    //component
+    NavMeshAgent nav;
     Rigidbody rigid;
     CapsuleCollider capsuleCollider;
+    public BoxCollider attackRange;
 
+    private bool isChase;
     private bool isWalk;
     private bool isAttack;
-
-    private bool hasTarget
-    {
-        get
-        {
-            if (target != null && !target.dead)
-            {
-                return true;
-            }
-
-            return false;
-        }
-    }
 
     private void Awake()
     {
         rigid = GetComponent<Rigidbody>();
         capsuleCollider = GetComponent<CapsuleCollider>();
-        animator = GetComponent<Animator>();
+        animator = GetComponentInChildren<Animator>();
         meshRenderer = GetComponentInChildren<SkinnedMeshRenderer>();
         originColor = meshRenderer.material.color;
         nav = GetComponent<NavMeshAgent>();
+
+        //2초 후 추적 시작
+        Invoke("ChaseStart", 2);
     }
 
-    public void Setup(float newHealth, float newDamage, float newSpeed)
+    public void Setup(float newHealth)
     {
         startingHealth = newHealth;
         health = newHealth;
-        damage = newDamage;
-        nav.speed = newSpeed;
     }
 
-    private void Start()
+    void ChaseStart()
     {
-        transform = GetComponent<Transform>();
+        isChase = true;
+        animator.SetBool("IsWalk", true);
     }
 
-    private void Update()
+    void Update()
     {
-        animator.SetBool("IsWalk", isWalk);
-        animator.SetBool("IsAttack", isAttack);
-
-        if (hasTarget)
+        if(nav.enabled)
         {
-            distance = Vector3.Distance(transform.position, target.transform.position);
-        }
-    }
-
-    private IEnumerator UpdatePath()
-    {
-        while(!dead)
-        {
-            if (hasTarget) //추척 대상이 있으면 공격
-            {
-                Attack();
-            }
-
-            else
-            {
-                //추적 대상이 없으면 이동 정지
-                nav.isStopped = true;
-                isAttack = false;
-                isWalk = false;
-            }
-
-            //0.25주기로 반복
-            yield return new WaitForSeconds(0.25f);
-        }
-    }
-
-    public void Attack()
-    {
-        if (!dead && distance < attackRange)
-        {
-            isWalk = false;
-
-            this.transform.LookAt(target.transform); //타깃 바라보기
-
-            if (lastAttackTime + attackDelay <= Time.time)
-            {
-                isAttack = true;
-            }
-
-            else
-            {
-                isAttack = false;
-            }
-        }
-
-        else
-        {
-            isWalk = true;
-            isAttack = false;
-            //계속 추적
-            nav.isStopped = false; //계속 이동
             nav.SetDestination(target.transform.position);
+            nav.isStopped = !isChase;
         }
     }
 
-    public override void OnDamage(float damage)
+    void FreezeVelocity()
     {
-        animator.SetTrigger("OnHit");
-        base.OnDamage(damage);
+        if (isChase)
+        {
+            rigid.velocity = Vector3.zero;
+            rigid.angularVelocity = Vector3.zero;
+        }
     }
 
-    //데미지 적용시키기 
-    public void OnDamageEvent()
+    void FixedUpdate()
     {
-        LivingEntity attackTarget = target.GetComponent<LivingEntity>();
+        FreezeVelocity();
+    }
 
-        attackTarget.OnDamage(damage);
+    void Attack()
+    {
+        isChase = false;
+        isAttack = true;
+        animator.SetBool("isAttack", true);
+    }
 
-        lastAttackTime = Time.time;
+    public void OnDamage()
+    {   
+        //맞으면 반격
+        animator.SetTrigger("OnHit");
+        Attack();
     }
 
     private IEnumerator OnHitColor()

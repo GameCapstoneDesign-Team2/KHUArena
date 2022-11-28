@@ -617,9 +617,7 @@ MonoBehaviour:
   startingHealth: 100
   startingMana: 0
   target: {fileID: 1241180538}
-  transform: {fileID: 0}
-  damage: 20
-  attackDelay: 1
+  attackRange: {fileID: 0}
 --- !u!1 &1241180537
 GameObject:
   m_ObjectHideFlags: 0
@@ -702,6 +700,8 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: fcecf241d55c8d543b9eba448a45c12c, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
+  startingHealth: 100
+  startingMana: 0
   jumpKeyCode: 32
   cameraTransform: {fileID: 963194228}
 --- !u!54 &1241180542
@@ -892,6 +892,51 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   attackCollision: {fileID: 0}
+--- !u!1 &1802847649
+GameObject:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  serializedVersion: 6
+  m_Component:
+  - component: {fileID: 1802847650}
+  - component: {fileID: 1802847651}
+  m_Layer: 0
+  m_Name: AttackRange
+  m_TagString: EnemyAttack
+  m_Icon: {fileID: 0}
+  m_NavMeshLayer: 0
+  m_StaticEditorFlags: 0
+  m_IsActive: 1
+--- !u!4 &1802847650
+Transform:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 1802847649}
+  m_LocalRotation: {x: 0, y: 0, z: 0, w: 1}
+  m_LocalPosition: {x: 0.547, y: 1.561, z: 0.83}
+  m_LocalScale: {x: 1.2471, y: 1.6544, z: 1}
+  m_ConstrainProportionsScale: 0
+  m_Children: []
+  m_Father: {fileID: 1883644720}
+  m_RootOrder: 1
+  m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
+--- !u!65 &1802847651
+BoxCollider:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 1802847649}
+  m_Material: {fileID: 0}
+  m_IsTrigger: 1
+  m_Enabled: 1
+  serializedVersion: 2
+  m_Size: {x: 1, y: 1, z: 1}
+  m_Center: {x: 0, y: 0, z: 0}
 --- !u!4 &1849851775 stripped
 Transform:
   m_CorrespondingSourceObject: {fileID: 400000, guid: 21ca816de6f3abd4cbee2c0462c8a186, type: 3}
@@ -966,6 +1011,7 @@ Transform:
   m_ConstrainProportionsScale: 0
   m_Children:
   - {fileID: 543450653174603776}
+  - {fileID: 1802847650}
   m_Father: {fileID: 0}
   m_RootOrder: 4
   m_LocalEulerAnglesHint: {x: 0, y: 180, z: 0}
@@ -979,7 +1025,7 @@ NavMeshAgent:
   m_Enabled: 1
   m_AgentTypeID: 0
   m_Radius: 0.5
-  m_Speed: 3.5
+  m_Speed: 2
   m_Acceleration: 8
   avoidancePriority: 50
   m_AngularSpeed: 120
@@ -1006,9 +1052,7 @@ MonoBehaviour:
   startingHealth: 100
   startingMana: 0
   target: {fileID: 1241180538}
-  transform: {fileID: 0}
-  damage: 20
-  attackDelay: 1
+  attackRange: {fileID: 1802847651}
 --- !u!95 &1883644723
 Animator:
   serializedVersion: 4
@@ -1074,6 +1118,8 @@ GameObject:
   - component: {fileID: 543450653174603776}
   - component: {fileID: 5866666021344049786}
   - component: {fileID: 1233489113}
+  - component: {fileID: 5866666021344049787}
+  - component: {fileID: 5866666021344049788}
   m_Layer: 0
   m_Name: Player_Model
   m_TagString: Untagged
@@ -1133,6 +1179,44 @@ Animator:
   m_HasTransformHierarchy: 0
   m_AllowConstantClipSamplingOptimization: 1
   m_KeepAnimatorControllerStateOnDisable: 0
+--- !u!195 &5866666021344049787
+NavMeshAgent:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 919132148648999610}
+  m_Enabled: 1
+  m_AgentTypeID: 0
+  m_Radius: 0.5
+  m_Speed: 1
+  m_Acceleration: 8
+  avoidancePriority: 50
+  m_AngularSpeed: 120
+  m_StoppingDistance: 0
+  m_AutoTraverseOffMeshLink: 1
+  m_AutoBraking: 1
+  m_AutoRepath: 1
+  m_Height: 2
+  m_BaseOffset: 0
+  m_WalkableMask: 4294967295
+  m_ObstacleAvoidanceType: 4
+--- !u!54 &5866666021344049788
+Rigidbody:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 919132148648999610}
+  serializedVersion: 2
+  m_Mass: 1
+  m_Drag: 0
+  m_AngularDrag: 0.05
+  m_UseGravity: 1
+  m_IsKinematic: 0
+  m_Interpolate: 0
+  m_Constraints: 0
+  m_CollisionDetection: 0
 --- !u!1 &6557697040712939436
 GameObject:
   m_ObjectHideFlags: 0
