@@ -7,6 +7,7 @@ public class PlayerController : LivingEntity
     [SerializeField]
     private Transform cameraTransform;
 
+    private CharacterController characterController;
     public Animator playerAnimator;
     private Rigidbody rigidbody;
 
@@ -18,10 +19,10 @@ public class PlayerController : LivingEntity
 
     public float moveSpeed;
 
-    private float attackCoolTime = 0.2f;
+    private float attackCoolTime = 0.8f;
     private float dodgeCoolTime = 3.0f;
     [SerializeField]
-    private float currentAttackTime = 0.2f;
+    private float currentAttackTime = 0.8f;
     private float currentDodgeTime = 3.0f;
 
     private bool isAttackReady = true;
@@ -36,6 +37,7 @@ public class PlayerController : LivingEntity
 
         rigidbody = GetComponent<Rigidbody>();
         playerAnimator = GetComponentInChildren<Animator>();
+        characterController = GetComponent<CharacterController>();
     }
 
     private void Update()
@@ -65,18 +67,15 @@ public class PlayerController : LivingEntity
         currentAttackTime += Time.deltaTime;
         isAttackReady = attackCoolTime < currentAttackTime;
 
-        // Sword °ø°İ
-        if (Input.GetMouseButtonDown(0) && !isJump && !isDodge)
+        // Sword ê³µê²©
+        if (Input.GetMouseButtonDown(0) && isAttackReady && !isDodge)
         {
-            if (isAttackReady)
+            if (playerAnimator.GetCurrentAnimatorStateInfo(1).normalizedTime > 0.5f)
             {
-                if (playerAnimator.GetCurrentAnimatorStateInfo(1).normalizedTime > 0.5f)
-                {
-                    playerAnimator.SetLayerWeight(1, 1);
-                    playerAnimator.SetTrigger("onWeaponAttack");
-                }
-                currentAttackTime = 0;
+                playerAnimator.SetLayerWeight(1, 1);
+                playerAnimator.SetTrigger("onWeaponAttack");
             }
+            currentAttackTime = 0;
         }
     }
 
@@ -124,15 +123,17 @@ public class PlayerController : LivingEntity
         playerAnimator.SetFloat("vertical", moveVector.z);
         playerAnimator.SetBool("isMove", (moveVector.x != 0.0f || moveVector.z != 0.0f));
 
-        // ÀÌµ¿ ÇÔ¼ö È£Ãâ (Ä«¸Ş¶ó°¡ º¸°í ÀÖ´Â ¹æÇâÀ» ±âÁØÀ¸·Î ¹æÇâÅ°¿¡ µû¶ó ÀÌµ¿)
+        // characterController.Move(moveVector * moveSpeed * Time.deltaTime);
+
+        // ì´ë™ í•¨ìˆ˜ í˜¸ì¶œ (ì¹´ë©”ë¼ê°€ ë³´ê³  ìˆëŠ” ë°©í–¥ì„ ê¸°ì¤€ìœ¼ë¡œ ë°©í–¥í‚¤ì— ë”°ë¼ ì´ë™)
         // movement3D.Moveto(cameraTransform.rotation * moveVector);
 
         Vector3 cameraRotation = cameraTransform.rotation * moveVector;
         Vector3 cameraYaw = new Vector3(cameraRotation.x, 0.0f, cameraRotation.z);
- 
+
         transform.position += cameraYaw * moveSpeed * Time.deltaTime;
 
-        // È¸Àü ¼³Á¤ (Ç×»ó ¾Õ¸¸ º¸µµ·Ï Ä³¸¯ÅÍÀÇ È¸ÀüÀº Ä«¸Ş¶ó¿Í °°Àº È¸Àü °ªÀ¸·Î ¼³Á¤)
+        // íšŒì „ ì„¤ì • (í•­ìƒ ì•ë§Œ ë³´ë„ë¡ ìºë¦­í„°ì˜ íšŒì „ì€ ì¹´ë©”ë¼ì™€ ê°™ì€ íšŒì „ ê°’ìœ¼ë¡œ ì„¤ì •)
         transform.rotation = Quaternion.Euler(0, cameraTransform.eulerAngles.y, 0);
     }
 
@@ -142,7 +143,7 @@ public class PlayerController : LivingEntity
         {
             if (!isJump && !isDodge)
             {
-                rigidbody.AddForce(Vector3.up * 10, ForceMode.Impulse);
+                rigidbody.AddForce(Vector3.up * 8, ForceMode.Impulse);
                 playerAnimator.SetBool("isJump", true);
                 playerAnimator.SetTrigger("onJump");
                 isJump = true;
