@@ -18,11 +18,12 @@ public class EnemyController : LivingEntity
     NavMeshAgent nav;
     Rigidbody rigid;
     CapsuleCollider capsuleCollider;
-    public BoxCollider attackRange;
+    public BoxCollider attackRange; //공격 범위
 
     private bool isChase;
     private bool isWalk;
     private bool isAttack;
+    private bool block;
 
     private void Awake()
     {
@@ -33,8 +34,8 @@ public class EnemyController : LivingEntity
         originColor = meshRenderer.material.color;
         nav = GetComponent<NavMeshAgent>();
 
-        //2초 후 추적 시작
-        Invoke("ChaseStart", 2);
+        nav.isStopped = true;
+        StartCoroutine(Attack());
     }
 
     public void Setup(float newHealth)
@@ -43,18 +44,13 @@ public class EnemyController : LivingEntity
         health = newHealth;
     }
 
-    void ChaseStart()
-    {
-        isChase = true;
-        animator.SetBool("IsWalk", true);
-    }
-
     void Update()
     {
         if(nav.enabled)
         {
             nav.SetDestination(target.transform.position);
-            nav.isStopped = !isChase;
+            animator.SetBool("IsWalk", true);
+            if()
         }
     }
 
@@ -72,18 +68,38 @@ public class EnemyController : LivingEntity
         FreezeVelocity();
     }
 
-    void Attack()
+    IEnumerator Attack()
     {
-        isChase = false;
-        isAttack = true;
-        animator.SetBool("isAttack", true);
+        yield return new WaitForSeconds(0.1f);
+
+        int ranAction = Random.Range(0, 3);
+        switch (ranAction)
+        {
+            case 0:
+                StartCoroutine(ShieldAttack());
+                break;
+            case 1:
+            case 2:
+                StartCoroutine(Attack_1());
+                break;
+        }
     }
 
-    public void OnDamage()
-    {   
-        //맞으면 반격
-        animator.SetTrigger("OnHit");
-        Attack();
+    IEnumerator Attack_1()
+    {
+        animator.SetBool("IsAttack", true);
+        yield return new WaitForSeconds(0.2f);
+
+        yield return new WaitForSeconds(2.5f);
+        StartCoroutine(Attack());
+    }
+
+
+    IEnumerator ShieldAttack()
+    {
+        animator.SetBool("Block", true);
+        yield return new WaitForSeconds(3f);
+        StartCoroutine(Attack());
     }
 
     private IEnumerator OnHitColor()
