@@ -9,33 +9,34 @@ public class EnemyController : LivingEntity
     private SkinnedMeshRenderer meshRenderer;
     private LayerMask whatIsTarget;
     private Color originColor;
+    private Transform _transform;
+    private Transform playerTransform;
 
     public LivingEntity target; 
-
-    private float distance;
 
     //component
     NavMeshAgent nav;
     Rigidbody rigid;
     CapsuleCollider capsuleCollider;
-    public BoxCollider attackRange; //공격 범위
 
     private bool isChase;
     private bool isWalk;
     private bool isAttack;
     private bool block;
+    private bool isDead = false;
+
+    public enum CurrentState { idle, chase, attack, dead };
+    public CurrentState curState = CurrentState.idle;
+
+    public float chaseDistance = 10.0f;
+    public float attackDistance = 3f;
 
     private void Awake()
     {
         rigid = GetComponent<Rigidbody>();
         capsuleCollider = GetComponent<CapsuleCollider>();
-        animator = GetComponentInChildren<Animator>();
         meshRenderer = GetComponentInChildren<SkinnedMeshRenderer>();
         originColor = meshRenderer.material.color;
-        nav = GetComponent<NavMeshAgent>();
-
-        nav.isStopped = true;
-        StartCoroutine(Attack());
     }
 
     public void Setup(float newHealth)
@@ -44,15 +45,27 @@ public class EnemyController : LivingEntity
         health = newHealth;
     }
 
+    private void Start()
+    {
+        _transform = this.gameObject.GetComponent<Transform>();
+        playerTransform = GameObject.FindWithTag("Player").GetComponent<Transform>();
+        nav = this.gameObject.GetComponent<NavMeshAgent>();
+        animator = this.gameObject.GetComponent<Animator>();
+
+        StartCoroutine(this.CheckState());
+        StartCoroutine(this.CheckStateForAction());
+    }
+
+    /*
     void Update()
     {
         if(nav.enabled)
         {
             nav.SetDestination(target.transform.position);
             animator.SetBool("IsWalk", true);
-            if()
         }
     }
+    */
 
     void FreezeVelocity()
     {
@@ -68,38 +81,51 @@ public class EnemyController : LivingEntity
         FreezeVelocity();
     }
 
-    IEnumerator Attack()
+    IEnumerator CheckState()
     {
-        yield return new WaitForSeconds(0.1f);
-
-        int ranAction = Random.Range(0, 3);
-        switch (ranAction)
+        while (!isDead)
         {
-            case 0:
-                StartCoroutine(ShieldAttack());
-                break;
-            case 1:
-            case 2:
-                StartCoroutine(Attack_1());
-                break;
+            yield return new WaitForSeconds(0.2f);
+            float distance = Vector3.Distance(playerTransform.position, _transform.position);
+
+            if (distance <= attackDistance)
+            {
+                curState = CurrentState.attack;
+            }
+            else if (distance <= chaseDistance)
+            {
+                curState = CurrentState.chase;
+            }
+            else
+            {
+                curState = CurrentState.idle;
+            }
         }
     }
 
-    IEnumerator Attack_1()
+    IEnumerator CheckStateForAction()
     {
-        animator.SetBool("IsAttack", true);
-        yield return new WaitForSeconds(0.2f);
+        while (!isDead)
+        {
+            switch (curState)
+            {
+                case CurrentState.idle:
+                    nav.Stop();
+                    animator.SetBool("IsWalk", false);
+                    break;
+                case CurrentState.chase:
+                    nav.destination = playerTransform.position;
+                    nav.Resume();
+                    animator.SetBool("IsWalk", true);
+                    break;
+                case CurrentState.attack:
+                    nav.Stop();
+                    animator.SetBool("IsAttack", true);
+                    break;
+            }
 
-        yield return new WaitForSeconds(2.5f);
-        StartCoroutine(Attack());
-    }
-
-
-    IEnumerator ShieldAttack()
-    {
-        animator.SetBool("Block", true);
-        yield return new WaitForSeconds(3f);
-        StartCoroutine(Attack());
+            yield return null;
+        }
     }
 
     private IEnumerator OnHitColor()
