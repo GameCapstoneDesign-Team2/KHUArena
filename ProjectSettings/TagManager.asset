@@ -8,6 +8,7 @@ TagManager:
   - Ground
   - EnemyAttack
   - CinemachineTarget
+  - object
   layers:
   - Default
   - TransparentFX
