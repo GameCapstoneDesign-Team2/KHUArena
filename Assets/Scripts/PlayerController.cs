@@ -7,6 +7,9 @@ public class PlayerController : LivingEntity
     [SerializeField]
     private Transform cameraTransform;
 
+    public Transform lookAt;
+    public Transform orientation;
+
     private CharacterController characterController;
     public Animator playerAnimator;
     private Rigidbody rigidbody;
@@ -45,6 +48,7 @@ public class PlayerController : LivingEntity
         x = Input.GetAxisRaw("Horizontal");
         z = Input.GetAxisRaw("Vertical");
 
+        Look();
         Move();
         Jump();
         Attack();
@@ -60,6 +64,14 @@ public class PlayerController : LivingEntity
     void FreezeRotation()
     {
         rigidbody.angularVelocity = Vector3.zero;
+    }
+
+    void Look()
+    {
+        Vector3 lookDirection = lookAt.position - new Vector3(transform.position.x, lookAt.position.y, transform.position.z);
+        orientation.forward = lookDirection.normalized;
+
+        transform.forward = lookDirection.normalized;
     }
 
     void Attack()
@@ -108,6 +120,8 @@ public class PlayerController : LivingEntity
     void Move()
     {
         moveVector = new Vector3(x, 0, z).normalized;
+
+        Debug.DrawRay(transform.position, transform.forward * 15, Color.red);
 
         if (isDodge)
         {
