@@ -6,7 +6,7 @@ public class AttackPoint : MonoBehaviour
 {
     private void OnCollisionEnter(Collision collision)
     {
-        if (collision.gameObject.tag == "object")
+        if (collision.gameObject.tag == "Enemy")
         {
             ContactPoint contactPoint = collision.contacts[0];
 

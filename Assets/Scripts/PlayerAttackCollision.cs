@@ -4,7 +4,6 @@ using UnityEngine;
 
 public class PlayerAttackCollision : MonoBehaviour
 {
-
     private void OnEnable()
     {
         StartCoroutine("AutoDisable");

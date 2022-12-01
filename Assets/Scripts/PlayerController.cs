@@ -6,6 +6,7 @@ public class PlayerController : LivingEntity
 {
     [SerializeField]
     private Transform cameraTransform;
+    public BoxCollider playerAttackCollision;
 
     public Transform lookAt;
     public Transform orientation;
@@ -22,16 +23,16 @@ public class PlayerController : LivingEntity
 
     public float moveSpeed;
 
-    private float attackCoolTime = 0.8f;
+    private float attackCoolTime = 1.0f;
     private float dodgeCoolTime = 3.0f;
-    [SerializeField]
-    private float currentAttackTime = 0.8f;
+    private float currentAttackTime = 1.0f;
     private float currentDodgeTime = 3.0f;
 
     private bool isAttackReady = true;
     private bool isDodgeReady = true;
     private bool isJump;
     private bool isDodge;
+    private bool isShield;
 
     private void Awake()
     {
@@ -41,6 +42,7 @@ public class PlayerController : LivingEntity
         rigidbody = GetComponent<Rigidbody>();
         playerAnimator = GetComponentInChildren<Animator>();
         characterController = GetComponent<CharacterController>();
+        playerAttackCollision = GetComponent<BoxCollider>();
     }
 
     private void Update()
@@ -82,11 +84,9 @@ public class PlayerController : LivingEntity
         // Sword 공격
         if (Input.GetMouseButtonDown(0) && isAttackReady && !isDodge)
         {
-            if (playerAnimator.GetCurrentAnimatorStateInfo(1).normalizedTime > 0.5f)
-            {
-                playerAnimator.SetLayerWeight(1, 1);
-                playerAnimator.SetTrigger("onWeaponAttack");
-            }
+            playerAnimator.SetLayerWeight(1, 1);
+            playerAnimator.SetTrigger("onWeaponAttack");
+
             currentAttackTime = 0;
         }
     }
@@ -99,6 +99,7 @@ public class PlayerController : LivingEntity
             {
                 playerAnimator.SetLayerWeight(1, 1);
                 playerAnimator.SetBool("isShield", true);
+                isShield = true;
             }
 
             if (Input.GetKeyDown(KeyCode.R))
@@ -109,19 +110,15 @@ public class PlayerController : LivingEntity
 
         if (Input.GetMouseButtonUp(1))
         {
-            if (playerAnimator.GetCurrentAnimatorStateInfo(1).normalizedTime > 0.5f)
-            {
-                playerAnimator.SetLayerWeight(1, 1);
-                playerAnimator.SetBool("isShield", false);
-            }
+            playerAnimator.SetLayerWeight(1, 1);
+            playerAnimator.SetBool("isShield", false);
+            isShield = false;
         }
     }
 
     void Move()
     {
         moveVector = new Vector3(x, 0, z).normalized;
-
-        Debug.DrawRay(transform.position, transform.forward * 15, Color.red);
 
         if (isDodge)
         {
@@ -136,11 +133,6 @@ public class PlayerController : LivingEntity
         playerAnimator.SetFloat("horizontal", -moveVector.x);
         playerAnimator.SetFloat("vertical", moveVector.z);
         playerAnimator.SetBool("isMove", (moveVector.x != 0.0f || moveVector.z != 0.0f));
-
-        // characterController.Move(moveVector * moveSpeed * Time.deltaTime);
-
-        // 이동 함수 호출 (카메라가 보고 있는 방향을 기준으로 방향키에 따라 이동)
-        // movement3D.Moveto(cameraTransform.rotation * moveVector);
 
         Vector3 cameraRotation = cameraTransform.rotation * moveVector;
         Vector3 cameraYaw = new Vector3(cameraRotation.x, 0.0f, cameraRotation.z);
