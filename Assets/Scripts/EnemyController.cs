@@ -8,7 +8,6 @@ public class EnemyController : LivingEntity
     private Animator animator;
     private SkinnedMeshRenderer meshRenderer;
     private LayerMask whatIsTarget;
-    private Color originColor;
     private Transform _transform;
     private Transform playerTransform;
 
@@ -19,16 +18,12 @@ public class EnemyController : LivingEntity
     Rigidbody rigid;
     CapsuleCollider capsuleCollider;
 
-    private bool isChase;
-    private bool isWalk;
-    private bool isAttack;
-    private bool block;
     private bool isDead = false;
 
-    public enum CurrentState { idle, chase, attack, dead };
+    public enum CurrentState { idle, walk, attack, dead };
     public CurrentState curState = CurrentState.idle;
 
-    public float chaseDistance = 10.0f;
+    public float chaseDistance = 9.0f;
     public float attackDistance = 3f;
 
     private void Awake()
@@ -36,7 +31,6 @@ public class EnemyController : LivingEntity
         rigid = GetComponent<Rigidbody>();
         capsuleCollider = GetComponent<CapsuleCollider>();
         meshRenderer = GetComponentInChildren<SkinnedMeshRenderer>();
-        originColor = meshRenderer.material.color;
     }
 
     public void Setup(float newHealth)
@@ -53,32 +47,25 @@ public class EnemyController : LivingEntity
         animator = this.gameObject.GetComponent<Animator>();
 
         StartCoroutine(this.CheckState());
-        StartCoroutine(this.CheckStateForAction());
     }
-
-    /*
-    void Update()
-    {
-        if(nav.enabled)
-        {
-            nav.SetDestination(target.transform.position);
-            animator.SetBool("IsWalk", true);
-        }
-    }
-    */
 
     void FreezeVelocity()
     {
-        if (isChase)
-        {
-            rigid.velocity = Vector3.zero;
-            rigid.angularVelocity = Vector3.zero;
-        }
+        rigid.velocity = Vector3.zero;
+        rigid.angularVelocity = Vector3.zero;
     }
 
     void FixedUpdate()
     {
         FreezeVelocity();
+    }
+
+    public void Chase(Vector3 targetPosition)
+    {
+        animator.SetBool("IsWalk", true);
+        nav.SetDestination(targetPosition);
+        
+        animator.SetBool("IsAttack", false);
     }
 
     IEnumerator CheckState()
@@ -91,53 +78,38 @@ public class EnemyController : LivingEntity
             if (distance <= attackDistance)
             {
                 curState = CurrentState.attack;
+                StartCoroutine(Attack());
             }
             else if (distance <= chaseDistance)
             {
-                curState = CurrentState.chase;
+                curState = CurrentState.walk;
+                Chase(playerTransform.position);
             }
+            /*
             else
             {
                 curState = CurrentState.idle;
+                animator.SetBool("IsWalk", true);
+                animator.SetBool("IsAttack", false);
             }
+            */
         }
     }
 
-    IEnumerator CheckStateForAction()
+    IEnumerator Attack()
     {
-        while (!isDead)
-        {
-            switch (curState)
-            {
-                case CurrentState.idle:
-                    nav.Stop();
-                    animator.SetBool("IsWalk", false);
-                    break;
-                case CurrentState.chase:
-                    nav.destination = playerTransform.position;
-                    nav.Resume();
-                    animator.SetBool("IsWalk", true);
-                    break;
-                case CurrentState.attack:
-                    nav.Stop();
-                    animator.SetBool("IsAttack", true);
-                    break;
-            }
+        nav.ResetPath();
 
-            yield return null;
-        }
-    }
+        yield return new WaitForSeconds(0.3f);
 
-    private IEnumerator OnHitColor()
-    {
-        meshRenderer.material.color = Color.red;
+        animator.SetBool("IsWalk", false);
+        animator.SetBool("IsAttack", true);
 
-        yield return new WaitForSeconds(0.1f);
-
-        meshRenderer.material.color = originColor;
+        //StartCoroutine(CheckState());
 
     }
 
+    /*
     public override void Die()
     {
         base.Die();
@@ -154,5 +126,5 @@ public class EnemyController : LivingEntity
 
         animator.SetTrigger("Die");
     }
-
+    */
 }
