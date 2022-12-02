@@ -20,11 +20,12 @@ public class EnemyController : LivingEntity
 
     private bool isDead = false;
 
-    public enum CurrentState { idle, walk, attack, dead };
+    public enum CurrentState { idle, walk, attack, dead, block};
     public CurrentState curState = CurrentState.idle;
 
     public float chaseDistance = 9.0f;
     public float attackDistance = 3f;
+    public float shieldDistance = 1f;
 
     private void Awake()
     {
@@ -68,7 +69,7 @@ public class EnemyController : LivingEntity
         animator.SetBool("IsAttack", false);
     }
 
-    IEnumerator CheckState()
+    public IEnumerator CheckState()
     {
         while (!isDead)
         {
@@ -85,6 +86,12 @@ public class EnemyController : LivingEntity
                 curState = CurrentState.walk;
                 Chase(playerTransform.position);
             }
+            else if (startingHealth == 0)
+            {
+                animator.SetTrigger("Dead");
+                nav.isStopped = true;
+                isDead = true;
+            }
             /*
             else
             {
@@ -98,33 +105,27 @@ public class EnemyController : LivingEntity
 
     IEnumerator Attack()
     {
+        float distance = Vector3.Distance(playerTransform.position, _transform.position);
+
         nav.ResetPath();
-
         yield return new WaitForSeconds(0.3f);
-
         animator.SetBool("IsWalk", false);
-        animator.SetBool("IsAttack", true);
 
-        //StartCoroutine(CheckState());
-
-    }
-
-    /*
-    public override void Die()
-    {
-        base.Die();
-
-        //다른 AI를 방해하지 않도록 자신의 모든 콜라이더를 비활성화
-        Collider[] enemyColliders = GetComponents<Collider>();
-        for (int i = 0; i < enemyColliders.Length; i++)
+        if (distance <= shieldDistance)
         {
-            enemyColliders[i].enabled = false;
+            //animator.SetBool("IsWalk", false);
+            animator.SetBool("Block", true);
+            animator.SetBool("IsAttack", false);
         }
-
-        nav.isStopped = true;
-        nav.enabled = false;
-
-        animator.SetTrigger("Die");
+        else if (distance > shieldDistance)
+        {
+            //animator.SetBool("IsWalk", false);
+            animator.SetBool("IsAttack", true);
+            animator.SetBool("Block", false);
+        }
+        
     }
-    */
+
+    
+    
 }
