@@ -8,33 +8,30 @@ public class EnemyController : LivingEntity
     private Animator animator;
     private SkinnedMeshRenderer meshRenderer;
     private LayerMask whatIsTarget;
-    private Color originColor;
+    private Transform _transform;
+    private Transform playerTransform;
 
     public LivingEntity target; 
-
-    private float distance;
 
     //component
     NavMeshAgent nav;
     Rigidbody rigid;
     CapsuleCollider capsuleCollider;
-    public BoxCollider attackRange;
 
-    private bool isChase;
-    private bool isWalk;
-    private bool isAttack;
+    private bool isDead = false;
+
+    public enum CurrentState { idle, walk, attack, dead, block};
+    public CurrentState curState = CurrentState.idle;
+
+    public float chaseDistance = 9.0f;
+    public float attackDistance = 3f;
+    public float shieldDistance = 1f;
 
     private void Awake()
     {
         rigid = GetComponent<Rigidbody>();
         capsuleCollider = GetComponent<CapsuleCollider>();
-        animator = GetComponentInChildren<Animator>();
         meshRenderer = GetComponentInChildren<SkinnedMeshRenderer>();
-        originColor = meshRenderer.material.color;
-        nav = GetComponent<NavMeshAgent>();
-
-        //2초 후 추적 시작
-        Invoke("ChaseStart", 2);
     }
 
     public void Setup(float newHealth)
@@ -43,28 +40,20 @@ public class EnemyController : LivingEntity
         health = newHealth;
     }
 
-    void ChaseStart()
+    private void Start()
     {
-        isChase = true;
-        animator.SetBool("IsWalk", true);
-    }
+        _transform = this.gameObject.GetComponent<Transform>();
+        playerTransform = GameObject.FindWithTag("Player").GetComponent<Transform>();
+        nav = this.gameObject.GetComponent<NavMeshAgent>();
+        animator = this.gameObject.GetComponent<Animator>();
 
-    void Update()
-    {
-        if(nav.enabled)
-        {
-            nav.SetDestination(target.transform.position);
-            nav.isStopped = !isChase;
-        }
+        StartCoroutine(this.CheckState());
     }
 
     void FreezeVelocity()
     {
-        if (isChase)
-        {
-            rigid.velocity = Vector3.zero;
-            rigid.angularVelocity = Vector3.zero;
-        }
+        rigid.velocity = Vector3.zero;
+        rigid.angularVelocity = Vector3.zero;
     }
 
     void FixedUpdate()
@@ -72,45 +61,71 @@ public class EnemyController : LivingEntity
         FreezeVelocity();
     }
 
-    void Attack()
+    public void Chase(Vector3 targetPosition)
     {
-        isChase = false;
-        isAttack = true;
-        animator.SetBool("isAttack", true);
+        animator.SetBool("IsWalk", true);
+        nav.SetDestination(targetPosition);
+        
+        animator.SetBool("IsAttack", false);
     }
 
-    public void OnDamage()
-    {   
-        //맞으면 반격
-        animator.SetTrigger("OnHit");
-        Attack();
-    }
-
-    private IEnumerator OnHitColor()
+    public IEnumerator CheckState()
     {
-        meshRenderer.material.color = Color.red;
-
-        yield return new WaitForSeconds(0.1f);
-
-        meshRenderer.material.color = originColor;
-
-    }
-
-    public override void Die()
-    {
-        base.Die();
-
-        //다른 AI를 방해하지 않도록 자신의 모든 콜라이더를 비활성화
-        Collider[] enemyColliders = GetComponents<Collider>();
-        for (int i = 0; i < enemyColliders.Length; i++)
+        while (!isDead)
         {
-            enemyColliders[i].enabled = false;
+            yield return new WaitForSeconds(0.2f);
+            float distance = Vector3.Distance(playerTransform.position, _transform.position);
+
+            if (distance <= attackDistance)
+            {
+                curState = CurrentState.attack;
+                StartCoroutine(Attack());
+            }
+            else if (distance <= chaseDistance)
+            {
+                curState = CurrentState.walk;
+                Chase(playerTransform.position);
+            }
+            else if (startingHealth == 0)
+            {
+                animator.SetTrigger("Dead");
+                nav.isStopped = true;
+                isDead = true;
+            }
+            /*
+            else
+            {
+                curState = CurrentState.idle;
+                animator.SetBool("IsWalk", true);
+                animator.SetBool("IsAttack", false);
+            }
+            */
         }
-
-        nav.isStopped = true;
-        nav.enabled = false;
-
-        animator.SetTrigger("Die");
     }
 
+    IEnumerator Attack()
+    {
+        float distance = Vector3.Distance(playerTransform.position, _transform.position);
+
+        nav.ResetPath();
+        yield return new WaitForSeconds(0.3f);
+        animator.SetBool("IsWalk", false);
+
+        if (distance <= shieldDistance)
+        {
+            //animator.SetBool("IsWalk", false);
+            animator.SetBool("Block", true);
+            animator.SetBool("IsAttack", false);
+        }
+        else if (distance > shieldDistance)
+        {
+            //animator.SetBool("IsWalk", false);
+            animator.SetBool("IsAttack", true);
+            animator.SetBool("Block", false);
+        }
+        
+    }
+
+    
+    
 }
