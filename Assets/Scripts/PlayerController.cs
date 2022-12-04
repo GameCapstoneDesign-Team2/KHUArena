@@ -14,6 +14,7 @@ public class PlayerController : LivingEntity
     private CharacterController characterController;
     public Animator playerAnimator;
     private Rigidbody rigidbody;
+    private MeshRenderer[] meshRenderer;
 
     Vector3 moveVector;
     Vector3 dodgeVector;
@@ -33,6 +34,7 @@ public class PlayerController : LivingEntity
     private bool isJump;
     private bool isDodge;
     private bool isShield;
+    private bool isDamage;
 
     private void Awake()
     {
@@ -42,6 +44,7 @@ public class PlayerController : LivingEntity
         rigidbody = GetComponent<Rigidbody>();
         playerAnimator = GetComponentInChildren<Animator>();
         characterController = GetComponent<CharacterController>();
+        meshRenderer = GetComponentsInChildren<MeshRenderer>();
     }
 
     private void Update()
@@ -202,5 +205,36 @@ public class PlayerController : LivingEntity
             playerAnimator.SetBool("isJump", false);
             isJump = false;
         }
+    }
+
+    private void OnTriggerEnter(Collider other)
+    {
+        if (other.tag == "EnemyWeapon")
+        {
+            if (!isDamage)
+            {
+                health -= 10;
+                StartCoroutine(OnDamage());
+            }
+        }
+    }
+
+    IEnumerator OnDamage()
+    {
+        isDamage = true;
+
+        foreach(MeshRenderer mesh in meshRenderer)
+        {
+            mesh.material.color = Color.red;
+        }
+
+        yield return new WaitForSeconds(1.0f);
+
+        foreach (MeshRenderer mesh in meshRenderer)
+        {
+            mesh.material.color = Color.red;
+        }
+
+        isDamage = false;
     }
 }
