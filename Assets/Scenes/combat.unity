@@ -181,7 +181,7 @@ PrefabInstance:
     - target: {fileID: 5866666021909216657, guid: 36078ab0369161e49a29d349ae3e0739, type: 3}
       propertyPath: m_Controller
       value: 
-      objectReference: {fileID: 9100000, guid: 64c355702f7f92e4c9c7959fb5dad89a, type: 2}
+      objectReference: {fileID: 9100000, guid: 2006e6a4f15d09040a48312f2e0f1bc3, type: 2}
     - target: {fileID: 5866666021909216657, guid: 36078ab0369161e49a29d349ae3e0739, type: 3}
       propertyPath: m_ApplyRootMotion
       value: 0
@@ -620,6 +620,7 @@ MonoBehaviour:
   curState: 0
   chaseDistance: 10
   attackDistance: 3
+  shieldDistance: 1
 --- !u!1 &1241180537
 GameObject:
   m_ObjectHideFlags: 0
@@ -704,8 +705,12 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   startingHealth: 100
   startingMana: 0
-  jumpKeyCode: 32
   cameraTransform: {fileID: 963194228}
+  playerAttackCollision: {fileID: 0}
+  lookAt: {fileID: 1241180538}
+  orientation: {fileID: 1241180538}
+  playerAnimator: {fileID: 1755344983}
+  moveSpeed: 15
 --- !u!54 &1241180542
 Rigidbody:
   m_ObjectHideFlags: 0
@@ -894,6 +899,12 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   attackCollision: {fileID: 0}
+  animator: {fileID: 0}
+--- !u!95 &1755344983 stripped
+Animator:
+  m_CorrespondingSourceObject: {fileID: 5866666021909216657, guid: 36078ab0369161e49a29d349ae3e0739, type: 3}
+  m_PrefabInstance: {fileID: 340691343}
+  m_PrefabAsset: {fileID: 0}
 --- !u!4 &1849851775 stripped
 Transform:
   m_CorrespondingSourceObject: {fileID: 400000, guid: 21ca816de6f3abd4cbee2c0462c8a186, type: 3}
@@ -1011,6 +1022,7 @@ MonoBehaviour:
   curState: 0
   chaseDistance: 10
   attackDistance: 3
+  shieldDistance: 1
 --- !u!95 &1883644723
 Animator:
   serializedVersion: 4
