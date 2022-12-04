@@ -6,14 +6,18 @@ TagManager:
   tags:
   - Enemy
   - Ground
+  - EnemyAttack
+  - CinemachineTarget
+  - object
+  - EnemyWeapon
   layers:
   - Default
   - TransparentFX
   - Ignore Raycast
-  - Enemy
+  - 
   - Water
   - UI
-  - 
+  - Player
   - 
   - 
   - 

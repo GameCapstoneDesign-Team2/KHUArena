@@ -2,16 +2,19 @@ using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
 
-public class PlayerController : MonoBehaviour
+public class PlayerController : LivingEntity
 {
     [SerializeField]
-    private KeyCode jumpKeyCode = KeyCode.Space;
-
-    [SerializeField]
     private Transform cameraTransform;
+    public BoxCollider attackCollision;
 
-    private Movement3D movement3D;
-    private PlayerAnimator playerAnimator;
+    public Transform lookAt;
+    public Transform orientation;
+
+    private CharacterController characterController;
+    public Animator playerAnimator;
+    private Rigidbody rigidbody;
+    private MeshRenderer[] meshRenderer;
 
     Vector3 moveVector;
     Vector3 dodgeVector;
@@ -19,37 +22,62 @@ public class PlayerController : MonoBehaviour
     float x;
     float z;
 
-    private float attackCoolTime = 0.5f;
+    public float moveSpeed;
+
+    private float attackCoolTime = 1.0f;
     private float dodgeCoolTime = 3.0f;
-    private float currentAttackTime = 0.5f;
+    private float currentAttackTime = 1.0f;
     private float currentDodgeTime = 3.0f;
 
     private bool isAttackReady = true;
     private bool isDodgeReady = true;
-    private bool isShield = true;
     private bool isJump;
     private bool isDodge;
+    private bool isShield;
+    private bool isDamage;
 
     private void Awake()
     {
         Cursor.visible = false;
         Cursor.lockState = CursorLockMode.Locked;
 
-        movement3D = GetComponent<Movement3D>();
-        playerAnimator = GetComponentInChildren<PlayerAnimator>();
+        rigidbody = GetComponent<Rigidbody>();
+        playerAnimator = GetComponentInChildren<Animator>();
+        characterController = GetComponent<CharacterController>();
+        meshRenderer = GetComponentsInChildren<MeshRenderer>();
     }
 
     private void Update()
     {
-        // πÊ«‚≈∞∏¶ ¥≠∑Ø ¿Ãµø
-        x = Input.GetAxis("Horizontal");
-        z = Input.GetAxis("Vertical");
+        x = Input.GetAxisRaw("Horizontal");
+        z = Input.GetAxisRaw("Vertical");
 
+        Look();
         Move();
         Jump();
+
         Attack();
+        
         Shield();
         Dodge();
+    }
+
+    private void FixedUpdate()
+    {
+        FreezeRotation();
+    }
+
+    void FreezeRotation()
+    {
+        rigidbody.angularVelocity = Vector3.zero;
+    }
+
+    void Look()
+    {
+        Vector3 lookDirection = lookAt.position - new Vector3(transform.position.x, lookAt.position.y, transform.position.z);
+        orientation.forward = lookDirection.normalized;
+
+        transform.forward = lookDirection.normalized;
     }
 
     void Attack()
@@ -57,35 +85,49 @@ public class PlayerController : MonoBehaviour
         currentAttackTime += Time.deltaTime;
         isAttackReady = attackCoolTime < currentAttackTime;
 
-        // Sword ∞¯∞›
-        if (Input.GetMouseButtonDown(0) && !isJump && !isDodge)
+        // Sword Í≥µÍ≤©
+        if (Input.GetMouseButtonDown(0) && isAttackReady && !isDodge)
         {
-            if (isAttackReady)
-            {
-                playerAnimator.OnWeaponAttack();
-                currentAttackTime = 0;
-            }
+            StopCoroutine("Swing");
+            StartCoroutine("Swing");
+            playerAnimator.SetLayerWeight(1, 1);
+            playerAnimator.SetTrigger("onWeaponAttack");
+
+            currentAttackTime = 0;
         }
+    }
+
+    IEnumerator Swing()
+    {
+        yield return new WaitForSeconds(0.3f);
+        attackCollision.enabled = true;
+
+        yield return new WaitForSeconds(0.2f);
+        attackCollision.enabled = false;
     }
 
     void Shield()
     {
         if (Input.GetMouseButton(1) && !isJump && !isDodge)
         {
-            isShield = false;
-
-            playerAnimator.OnShield();
+            if (playerAnimator.GetCurrentAnimatorStateInfo(1).normalizedTime > 0.5f)
+            {
+                playerAnimator.SetLayerWeight(1, 1);
+                playerAnimator.SetBool("isShield", true);
+                isShield = true;
+            }
 
             if (Input.GetKeyDown(KeyCode.R))
             {
-                playerAnimator.animator.SetTrigger("isAttacked");
+                playerAnimator.SetTrigger("onShield");
             }
         }
 
         if (Input.GetMouseButtonUp(1))
         {
-            isShield = true;
-            playerAnimator.OffShield();
+            playerAnimator.SetLayerWeight(1, 1);
+            playerAnimator.SetBool("isShield", false);
+            isShield = false;
         }
     }
 
@@ -98,39 +140,36 @@ public class PlayerController : MonoBehaviour
             moveVector = dodgeVector;
         }
 
-        if (!isAttackReady || !isShield)
+        if (!isAttackReady)
         {
             moveVector *= 0.5f;
         }
 
-        // æ÷¥œ∏ﬁ¿Ãº« ∆ƒ∂ÛπÃ≈Õ º≥¡§
-        playerAnimator.OnMovement(moveVector.x, moveVector.z);
+        playerAnimator.SetFloat("horizontal", -moveVector.x);
+        playerAnimator.SetFloat("vertical", moveVector.z);
+        playerAnimator.SetBool("isMove", (moveVector.x != 0.0f || moveVector.z != 0.0f));
 
-        // ¿Ãµø «‘ºˆ »£√‚ (ƒ´∏ﬁ∂Û∞° ∫∏∞Ì ¿÷¥¬ πÊ«‚¿ª ±‚¡ÿ¿∏∑Œ πÊ«‚≈∞ø° µ˚∂Û ¿Ãµø)
-        movement3D.Moveto(cameraTransform.rotation * moveVector);
+        Vector3 cameraRotation = cameraTransform.rotation * moveVector;
+        Vector3 cameraYaw = new Vector3(cameraRotation.x, 0.0f, cameraRotation.z);
 
-        // »∏¿¸ º≥¡§ («◊ªÛ æ’∏∏ ∫∏µµ∑œ ƒ≥∏Ø≈Õ¿« »∏¿¸¿∫ ƒ´∏ﬁ∂ÛøÕ ∞∞¿∫ »∏¿¸ ∞™¿∏∑Œ º≥¡§)
+        transform.position += cameraYaw * moveSpeed * Time.deltaTime;
+
+        // ÌöåÏ†Ñ ÏÑ§Ï†ï (Ìï≠ÏÉÅ ÏïûÎßå Î≥¥ÎèÑÎ°ù Ï∫êÎ¶≠ÌÑ∞Ïùò ÌöåÏ†ÑÏùÄ Ïπ¥Î©îÎùºÏôÄ Í∞ôÏùÄ ÌöåÏ†Ñ Í∞íÏúºÎ°ú ÏÑ§Ï†ï)
         transform.rotation = Quaternion.Euler(0, cameraTransform.eulerAngles.y, 0);
     }
 
     void Jump()
     {
-        if (Input.GetKeyDown(jumpKeyCode))
+        if (Input.GetKeyDown(KeyCode.Space))
         {
             if (!isJump && !isDodge)
             {
-                movement3D.JumpTo(); // ¡°«¡ «‘ºˆ »£√‚
-                playerAnimator.OnJump(); // æ÷¥œ∏ﬁ¿Ãº« ∆ƒ∂ÛπÃ≈Õ º≥¡§ (onJump)
+                rigidbody.AddForce(Vector3.up * 8, ForceMode.Impulse);
+                playerAnimator.SetBool("isJump", true);
+                playerAnimator.SetTrigger("onJump");
                 isJump = true;
-
-                Invoke("JumpOut", 0.6f);
             }
         }
-    }
-
-    void JumpOut()
-    {
-        isJump = false;
     }
 
     void Dodge()
@@ -143,8 +182,8 @@ public class PlayerController : MonoBehaviour
             if (Input.GetKeyDown(KeyCode.LeftShift) && moveVector != Vector3.zero && !isJump)
             {
                 dodgeVector = moveVector;
-                movement3D.MoveSpeed *= 2;
-                playerAnimator.OnDodge();
+                moveSpeed *= 2;
+                playerAnimator.SetTrigger("onDodge");
                 isDodge = true;
 
                 Invoke("DodgeOut", 0.7f);
@@ -155,7 +194,47 @@ public class PlayerController : MonoBehaviour
 
     void DodgeOut()
     {
-        movement3D.MoveSpeed *= 0.5f;
+        moveSpeed *= 0.5f;
         isDodge = false;
+    }
+
+    private void OnCollisionEnter(Collision collision)
+    {
+        if (collision.gameObject.tag == "Ground")
+        {
+            playerAnimator.SetBool("isJump", false);
+            isJump = false;
+        }
+    }
+
+    private void OnTriggerEnter(Collider other)
+    {
+        if (other.tag == "EnemyWeapon")
+        {
+            if (!isDamage)
+            {
+                health -= 10;
+                StartCoroutine(OnDamage());
+            }
+        }
+    }
+
+    IEnumerator OnDamage()
+    {
+        isDamage = true;
+
+        foreach(MeshRenderer mesh in meshRenderer)
+        {
+            mesh.material.color = Color.red;
+        }
+
+        yield return new WaitForSeconds(1.0f);
+
+        foreach (MeshRenderer mesh in meshRenderer)
+        {
+            mesh.material.color = Color.red;
+        }
+
+        isDamage = false;
     }
 }

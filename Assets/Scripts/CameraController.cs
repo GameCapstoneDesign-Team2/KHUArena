@@ -5,7 +5,6 @@ using UnityEngine;
 public class CameraController : MonoBehaviour
 {
     [SerializeField]
-
     private Transform target; //카메라가 추적하는 대상
     [SerializeField]
     private float minDistance = 1; //카메라와 target의 최소 거리
