@@ -695,8 +695,14 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: fcecf241d55c8d543b9eba448a45c12c, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  jumpKeyCode: 32
+  startingHealth: 100
+  startingMana: 0
   cameraTransform: {fileID: 963194228}
+  playerAttackCollision: {fileID: 0}
+  lookAt: {fileID: 0}
+  orientation: {fileID: 0}
+  playerAnimator: {fileID: 0}
+  moveSpeed: 0
 --- !u!54 &1241180542
 Rigidbody:
   m_ObjectHideFlags: 0
@@ -736,7 +742,7 @@ MonoBehaviour:
   m_GameObject: {fileID: 1241180537}
   m_Enabled: 1
   m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: b6d8220f1e8b80c4c80cb8d1a6d0d589, type: 3}
+  m_Script: {fileID: 11500000, guid: 16b8e0e1e6083f745a5f288e5a7b0ab2, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
 --- !u!1 &1755344980 stripped
@@ -756,6 +762,8 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: bbdd8be8e9b6f4d498ba6b0988dae786, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
+  attackCollision: {fileID: 0}
+  animator: {fileID: 0}
 --- !u!1 &1809893074
 GameObject:
   m_ObjectHideFlags: 0

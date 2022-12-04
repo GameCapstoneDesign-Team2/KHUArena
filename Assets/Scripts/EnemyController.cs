@@ -23,9 +23,9 @@ public class EnemyController : LivingEntity
     public enum CurrentState { idle, walk, attack, dead, block};
     public CurrentState curState = CurrentState.idle;
 
-    public float chaseDistance = 9.0f;
-    public float attackDistance = 3f;
-    public float shieldDistance = 1f;
+    public float chaseDistance;
+    public float attackDistance;
+    public float shieldDistance;
 
     private void Awake()
     {

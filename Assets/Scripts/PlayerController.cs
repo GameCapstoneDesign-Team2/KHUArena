@@ -6,7 +6,7 @@ public class PlayerController : LivingEntity
 {
     [SerializeField]
     private Transform cameraTransform;
-    public BoxCollider playerAttackCollision;
+    public BoxCollider attackCollision;
 
     public Transform lookAt;
     public Transform orientation;
@@ -42,7 +42,6 @@ public class PlayerController : LivingEntity
         rigidbody = GetComponent<Rigidbody>();
         playerAnimator = GetComponentInChildren<Animator>();
         characterController = GetComponent<CharacterController>();
-        playerAttackCollision = GetComponent<BoxCollider>();
     }
 
     private void Update()
@@ -53,7 +52,9 @@ public class PlayerController : LivingEntity
         Look();
         Move();
         Jump();
+
         Attack();
+        
         Shield();
         Dodge();
     }
@@ -84,11 +85,22 @@ public class PlayerController : LivingEntity
         // Sword 공격
         if (Input.GetMouseButtonDown(0) && isAttackReady && !isDodge)
         {
+            StopCoroutine("Swing");
+            StartCoroutine("Swing");
             playerAnimator.SetLayerWeight(1, 1);
             playerAnimator.SetTrigger("onWeaponAttack");
 
             currentAttackTime = 0;
         }
+    }
+
+    IEnumerator Swing()
+    {
+        yield return new WaitForSeconds(0.3f);
+        attackCollision.enabled = true;
+
+        yield return new WaitForSeconds(0.2f);
+        attackCollision.enabled = false;
     }
 
     void Shield()
