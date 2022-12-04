@@ -7,6 +7,9 @@ public class PlayerController : LivingEntity
     [SerializeField]
     private Transform cameraTransform;
     public BoxCollider attackCollision;
+    public GameObject sword;
+    public Transform bulletPosition;
+    public GameObject bullet;
 
     public Transform lookAt;
     public Transform orientation;
@@ -98,6 +101,30 @@ public class PlayerController : LivingEntity
 
             currentAttackTime = 0;
         }
+
+        if (Input.GetKeyDown(KeyCode.F) && isAttackReady && !isDodge)
+        {
+            StartCoroutine(Throw());
+            currentAttackTime = 0;
+        }
+    }
+
+    IEnumerator Throw()
+    {
+        sword.SetActive(false);
+
+        playerAnimator.SetLayerWeight(1, 1);
+        playerAnimator.SetTrigger("onThrow");
+
+        yield return new WaitForSeconds(0.8f);
+
+        GameObject instantBullet = Instantiate(bullet, bulletPosition.position, bulletPosition.rotation);
+        Rigidbody bulletRigidbody = instantBullet.GetComponent<Rigidbody>();
+        bulletRigidbody.velocity = bulletPosition.forward * 50;
+
+        yield return new WaitForSeconds(1.8f);
+
+        sword.SetActive(true);
     }
 
     IEnumerator Swing()
