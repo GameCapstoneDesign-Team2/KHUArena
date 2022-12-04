@@ -23,6 +23,8 @@ public class PlayerController : LivingEntity
     float z;
 
     public float moveSpeed;
+    public int maxHP;
+    public int currentHP;
 
     private float attackCoolTime = 1.0f;
     private float dodgeCoolTime = 3.0f;
@@ -35,6 +37,7 @@ public class PlayerController : LivingEntity
     private bool isDodge;
     private bool isShield;
     private bool isDamage;
+    private bool isDead;
 
     private void Awake()
     {
@@ -99,10 +102,10 @@ public class PlayerController : LivingEntity
 
     IEnumerator Swing()
     {
-        yield return new WaitForSeconds(0.3f);
+        yield return new WaitForSeconds(0.2f);
         attackCollision.enabled = true;
 
-        yield return new WaitForSeconds(0.2f);
+        yield return new WaitForSeconds(0.5f);
         attackCollision.enabled = false;
     }
 
@@ -115,11 +118,6 @@ public class PlayerController : LivingEntity
                 playerAnimator.SetLayerWeight(1, 1);
                 playerAnimator.SetBool("isShield", true);
                 isShield = true;
-            }
-
-            if (Input.GetKeyDown(KeyCode.R))
-            {
-                playerAnimator.SetTrigger("onShield");
             }
         }
 
@@ -211,30 +209,42 @@ public class PlayerController : LivingEntity
     {
         if (other.tag == "EnemyWeapon")
         {
-            if (!isDamage)
+            if (!isDamage && !isShield)
             {
-                health -= 10;
+                currentHP -= 10;
                 StartCoroutine(OnDamage());
+            }
+            else if (isShield)
+            {
+                Vector3 reactVector = transform.position - other.transform.position;
+                Block(reactVector);
+                playerAnimator.SetTrigger("onShield");
+                isShield = false;
             }
         }
     }
 
+    void Block(Vector3 reactVector)
+    {
+        reactVector = reactVector.normalized;
+        reactVector += -transform.forward;
+        rigidbody.AddForce(reactVector * 5, ForceMode.Impulse);
+    }
+
     IEnumerator OnDamage()
     {
-        isDamage = true;
-
-        foreach(MeshRenderer mesh in meshRenderer)
+        if (currentHP > 0)
         {
-            mesh.material.color = Color.red;
+            isDamage = true;
+
+            yield return new WaitForSeconds(1.0f);
+
+            isDamage = false;
         }
-
-        yield return new WaitForSeconds(1.0f);
-
-        foreach (MeshRenderer mesh in meshRenderer)
+        else
         {
-            mesh.material.color = Color.red;
+            Debug.Log("Died");
+            moveVector = Vector3.zero;
         }
-
-        isDamage = false;
     }
 }
