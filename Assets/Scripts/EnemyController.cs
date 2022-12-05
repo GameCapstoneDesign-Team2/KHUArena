@@ -20,7 +20,7 @@ public class EnemyController : LivingEntity
 
     private bool isDead = false;
 
-    public enum CurrentState { idle, walk, attack, dead, block};
+    public enum CurrentState { idle, walk, attack, dead, block, onHit};
     public CurrentState curState = CurrentState.idle;
 
     public float chaseDistance;
