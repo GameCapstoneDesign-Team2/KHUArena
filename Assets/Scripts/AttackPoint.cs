@@ -8,7 +8,8 @@ public class AttackPoint : MonoBehaviour
     {
         if (other.gameObject.tag == "Enemy")
         {
-            Debug.Log("Attack");
+            EnemyController enemyController = other.gameObject.GetComponent<EnemyController>();
+            enemyController.Setup(enemyController.health - 10.0f);
             Vector3 contactPoint = other.ClosestPoint(transform.position);
 
             GameObject sphere = GameObject.CreatePrimitive(PrimitiveType.Sphere);
