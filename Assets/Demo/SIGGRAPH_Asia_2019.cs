@@ -486,8 +486,8 @@ public class SIGGRAPH_Asia_2019 : NeuralAnimation {
 				yield return new WaitForSeconds(0f);
 			}
 
-			sword.SetActive(true);
-			carried_sword.SetActive(false);
+			//sword.SetActive(true);
+			//carried_sword.SetActive(false);
 
 			/*
 			//Move around with the object
