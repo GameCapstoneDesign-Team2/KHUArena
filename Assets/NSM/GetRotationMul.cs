@@ -43,7 +43,7 @@ public class GetRotationMul : MonoBehaviour
 
     private void SetPosition()
     {
-        offset_position = Actor.transform.position - transform.position;
+        offset_position = Actor.transform.position*2 - transform.position;
     }
 
     private void SetBaseRot()
@@ -60,7 +60,7 @@ public class GetRotationMul : MonoBehaviour
 
     private void RetargetingBones()
     {
-        transform.position = Actor.transform.position - offset_position;
+        transform.position = Actor.transform.position*2 - offset_position;
         for (int i = 0; i < bones.Length; i++)
         {
             var bonename = bones[i].CharacterBone;
